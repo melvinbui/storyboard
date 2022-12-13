@@ -1,0 +1,191 @@
+---
+title: "Melvin's Storyboard"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: lumen
+    storyboard: true
+    self_contained: true
+
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(skimr)
+library(inspectdf)
+library(palmerpenguins)
+library(ggthemes)
+# create www folder
+fs::dir_create("www/")
+# options for chunks
+knitr::opts_chunk$set(
+  cache = FALSE,
+  echo = TRUE,
+  collapse = FALSE,
+  eval = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  dev = "ragg_png",
+  out.width = '85%',
+  fig.path = "www/",
+  dpi = 320,
+  fig.align = "center",
+  fig.width = 7,
+  fig.height = 5.5,
+  fig.retina = 2
+  )
+# tibble printing
+options(
+  pillar.print_max = 10, 
+  pillar.print_min = 10)
+```
+
+
+### Cannabis History {data-commentary-width=350}
+
+The data depicted in these datasets come from Kushy App, an open source application and data for the cannabis industry. It records and gauges the popularity of cannabis products, strains and brands. More information about the data can be found at https://github.com/kushyapp/cannabis-dataset
+
+```{r import, echo=FALSE}
+brands_raw <- readr::read_csv('data/raw/brand_raw.csv')
+strains_raw <- read_csv("data/strains_null_na.csv", 
+    na = "NA")
+products_raw <- readr::read_csv('data/raw/products_csv')
+top_cat <- brands_raw %>% 
+  count(category, sort = TRUE) %>%
+  filter(!is.na(category)) %>% 
+  head(25)
+
+```
+
+
+*** 
+
+Additional links or sources...
+
+### Cannabis Brands {data-commentary-width=400}
+
+```{r, echo=FALSE} 
+labs_bar <- labs(
+  title = "Top 25 Cannabis Categories",
+  x = "count", y = "category")
+
+ggp2_bar <- ggplot(data = top_cat,
+     aes(x = n, y = forcats::fct_reorder(category, n))) + 
+     geom_col(aes(fill= category), show.legend = FALSE, stat="count") +
+     ggthemes::theme_gdocs(base_size = 8)
+ggp2_bar + 
+  labs_bar
+
+```
+
+
+*** 
+
+```{r, eval= FALSE} 
+labs_bar <- labs(
+  title = "Top 25 Cannabis Categories",
+  x = "count", y = "category")
+
+ggp2_bar <- ggplot(data = top_cat,
+     aes(x = n, 
+         y = forcats::fct_reorder(
+           category, n))) + 
+     geom_col(aes(fill= category), 
+              show.legend = FALSE, 
+              stat="count") 
+ggp2_bar + 
+  labs_bar
+
+```
+
+### Cannabis Strains {data-commentary-width=400}
+
+
+``` {r col, echo = FALSE}
+labs_col <- labs(
+  title = "Top Cannabis Flavors",
+  x = "count", y = "flavor", 
+  fill = "flavor")
+strains_raw %>% 
+  filter(!is.na(flavor)) %>% 
+  count(flavor, sort= TRUE) %>%
+  head(20) %>% 
+ ggplot(data = ., 
+       aes(x = n, 
+           y = fct_reorder(
+             .f = as.factor(flavor), 
+             .x = n))) + 
+    geom_col(aes(fill = flavor), 
+        show.legend = FALSE) +
+ggthemes::theme_gdocs(base_size = 8) -> ggp2_col 
+
+ggp2_col + labs_col
+```
+
+
+***
+
+``` {r col_hide, eval = FALSE}
+labs_col <- labs(
+  title = "Top Cannabis Flavors",
+  x = "count", y = "flavor", 
+  fill = "flavor")
+strains_raw %>% 
+  filter(!is.na(flavor)) %>% 
+  count(flavor, sort= TRUE) %>%
+  head(20) %>% 
+ ggplot(data = ., 
+       aes(x = n, 
+           y = fct_reorder(
+             .f = as.factor(flavor), 
+             .x = n))) + 
+    geom_col(aes(fill = flavor), 
+             show.legend = FALSE) -> ggp2_col
+ggp2_col + labs_col
+```
+
+### Cannabis Products {data-commentary-width=400}
+ 
+
+
+
+```{r echo= FALSE} 
+labs_bar <- labs(
+  title = "Cannabis Products",
+  x = "count", y = "brand", 
+  fill = "brand")
+products_raw %>% 
+  count(brand, sort= TRUE) %>%
+  head(20) %>% 
+  ggplot(data = ., 
+       aes(x = n, y = fct_reorder(.f = as.factor(brand), .x = n))) + 
+    geom_col(aes(fill = brand), 
+             show.legend = FALSE) +
+ggthemes::theme_gdocs(base_size = 8) -> ggp2_bar 
+ggp2_bar + 
+  labs_bar
+  
+```
+
+
+*** 
+
+```{r eval= FALSE} 
+labs_bar <- labs(title = "Cannabis Products",
+                 x = "count",
+                 y = "brand",
+                 fill = "brand")
+products_raw %>%
+  count(brand, sort = TRUE) %>%
+  head(20) %>%
+  ggplot(data = .,
+         aes(x = n, 
+             y = fct_reorder(
+               .f = as.factor(brand), 
+               .x = n))) +
+  geom_col(aes(fill = brand),
+           show.legend = FALSE) -> ggp2_bar
+ggp2_bar +
+  labs_bar
+
+```
